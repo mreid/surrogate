@@ -1,9 +1,10 @@
+setwd('~/code/surrogate/')
 source("Deriv.R")
 
 # Cost weighted loss generator
-lcost <- function(c) { 
-#	function(y,e) ifelse(e<c, y*(1-c), (1-y)*c)
-	function(y,e) as.real(e<c)*y*(1-c) + as.real(e>=c)*(1-y)*c
+lcost <- function(c) {
+	function(y,e) ifelse(e<c, y*(1-c), (1-y)*c)
+#	function(y,e) as.real(e<c)*y*(1-c) + as.real(e>=c)*(1-y)*c
 }
 
 # 0-1 Loss
@@ -38,7 +39,11 @@ B <- function(loss) function(y,e) loss(y,e) - Lmin(loss)(y)
 psi <- function(loss, c, alpha) {
 	minloss <- Lmin(loss)
 	dminloss <- Deriv.function(minloss)
-	minloss(c) - minloss(c-alpha) + alpha*dminloss(c)
+	if((c-alpha < 0) || (c-alpha > 1)) {
+		return(0)
+	} else {
+		return(minloss(c) - minloss(c-alpha) + alpha*dminloss(c))
+	}
 }
 
 bound <- function(loss, c) {
