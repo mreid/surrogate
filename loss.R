@@ -47,7 +47,7 @@ psi <- function(loss, c, alpha) {
 }
 
 bound <- function(loss, c) {
-	function(alpha) {
+	Vectorize(function(alpha) {
 		min(psi(loss, c, alpha), psi(loss, c, -alpha))
-	}
+	})
 }
