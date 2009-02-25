@@ -30,6 +30,13 @@ psi <- function(loss, c, alpha) {
 	minloss(c) - minloss(c-alpha) + alpha*dminloss(c)
 }
 
+bound <- function(loss, c) {
+	function(y,e) {
+		alpha <- B(lcost(c))(y,e)
+		max(psi(loss, c, alpha), psi(loss, c, -alpha))
+	}
+}
+
 plotBounds <- function(loss, c, est, title=deparse(body(loss))) {
 	Bc <- B(lcost(c))
 	Bloss <- B(loss)
@@ -38,3 +45,10 @@ plotBounds <- function(loss, c, est, title=deparse(body(loss))) {
 	plot(function(y) psi(loss, c, -Bc(y,est)), add=TRUE, col='red', lty=2)
 }
 
+invBound <- function(loss, c) {
+	function(y,e) {
+		b <- B(loss)(y,e)
+		f <- function(alpha) max(psi(loss, c, alpha), psi(loss, c, -alpha)) - b
+		uniroot(f, c(0,min(c,1-c)-0.001), maxiter=100)$root
+	}
+} 
