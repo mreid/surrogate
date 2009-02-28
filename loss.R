@@ -52,3 +52,32 @@ invBound <- function(loss, c) {
 		uniroot(f, c(0,min(c,1-c)-0.001), maxiter=100)$root
 	}
 } 
+
+# The following code tests whether estimates other than the mean make sense
+# mu is a Chernoff bound for the true probability t given an estimate e built from
+# n 0-1 samples drawn from Binomial(t, 1-t)
+mu <- function(n,e) function(t) 2*exp(-2*n*abs(t-e)^2)
+
+# Given a loss l, the number of sample n and the empirical estimate e,
+# this returns a function that, for a new estimate s, computes an upper bound 
+# on the expected true risk for l under the Chernoff bound given by mu
+risk <- function(l,n,e) function(s) integrate(function(t) l(t,s)*(mu(n,e)(t)), 0, 1)$value
+
+# Plot the bound on the expected true risk
+plot(Vectorize(risk(lexp,10,0.2)), 0.1, 0.6)
+
+# Compute the estimate that minimises the upper bound on the true risk for exponential
+# loss when there are 10 samples with an empirical estimate of 0.2
+optimize(risk(lexp,10,0.2), c(0.1, 0.9))
+
+n = 2
+e = 0.1
+optimize(risk(lexp,n,e), c(0.01, 0.99))
+optimize(risk(lsquare,n,e), c(0.01, 0.99))
+optimize(risk(llog,n,e), c(0.01, 0.99))
+
+regret <- function(l,n,e) function(s) integrate(function(t) ( l(t,s) - Lmin(l)(t) )*(mu(n,e)(t)), 0, 1)$value
+
+optimize(regret(lexp,n,e), c(0.01, 0.99))
+optimize(regret(lsquare,n,e), c(0.01, 0.99))
+optimize(regret(llog,n,e), c(0.01, 0.99))
