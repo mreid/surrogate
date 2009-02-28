@@ -63,15 +63,17 @@ mu <- function(n,e) function(t) 2*exp(-2*n*abs(t-e)^2)
 # on the expected true risk for l under the Chernoff bound given by mu
 risk <- function(l,n,e) function(s) integrate(function(t) l(t,s)*(mu(n,e)(t)), 0, 1)$value
 
-# Plot the bound on the expected true risk
-plot(Vectorize(risk(lexp,10,0.2)), 0.1, 0.6)
+# Plot the bound on the expected true risk given the estimate 0.2 and the risk assuming the 
+# estimate is true
+plot(Vectorize(risk(lexp,5,0.2)), 0.1, 0.6, ylim=c(0.5,1))
+plot(Vectorize(function(x) lexp(0.2,x)), 0.1, 0.6, add=TRUE, col=2)
 
 # Compute the estimate that minimises the upper bound on the true risk for exponential
 # loss when there are 10 samples with an empirical estimate of 0.2
 optimize(risk(lexp,10,0.2), c(0.1, 0.9))
 
-n = 2
-e = 0.1
+n = 5
+e = 0.25
 optimize(risk(lexp,n,e), c(0.01, 0.99))
 optimize(risk(lsquare,n,e), c(0.01, 0.99))
 optimize(risk(llog,n,e), c(0.01, 0.99))
@@ -81,3 +83,8 @@ regret <- function(l,n,e) function(s) integrate(function(t) ( l(t,s) - Lmin(l)(t
 optimize(regret(lexp,n,e), c(0.01, 0.99))
 optimize(regret(lsquare,n,e), c(0.01, 0.99))
 optimize(regret(llog,n,e), c(0.01, 0.99))
+
+plot(Vectorize(regret(lexp,n,e)), 0.1, 0.6, ylim=c(0,0.5))
+plot(Vectorize(regret(lsquare,n,e)), 0.1, 0.6, add=TRUE, col=2)
+plot(Vectorize(regret(llog,n,e)), 0.1, 0.6, add=TRUE, col=3)
+plot(Vectorize(regret(l01,n,e)), 0.1, 0.6, add=TRUE, col=4)
