@@ -88,3 +88,11 @@ plot(Vectorize(regret(lexp,n,e)), 0.1, 0.6, ylim=c(0,0.5))
 plot(Vectorize(regret(lsquare,n,e)), 0.1, 0.6, add=TRUE, col=2)
 plot(Vectorize(regret(llog,n,e)), 0.1, 0.6, add=TRUE, col=3)
 plot(Vectorize(regret(l01,n,e)), 0.1, 0.6, add=TRUE, col=4)
+
+
+# Some plots of L(e,e') on the unit square
+x <- seq(0.1,0.9,len=30)
+y <- x
+z <- outer(x, y, llog)
+persp(x,y,z, theta=0, phi=0) -> res
+lines(trans3d(x,x,z=llog(x,x), pm=res), col=3, lwd=3)
